@@ -1,6 +1,7 @@
 import numpy
 import random
 from tkinter import *
+from time import sleep
 def add_book_name(f):
     def wrapper():
         return f() + "fav book"
@@ -13,7 +14,7 @@ def read_book():
 print(read_book())
 WIDTH = 500
 HEIGHT = 500
-RESOLUTION = 100
+RESOLUTION = 10
 ROWS = HEIGHT // RESOLUTION
 COLUMNS = WIDTH // RESOLUTION
 
@@ -28,28 +29,28 @@ class Cell(object):
 
     def die(self):
         self.state = 0
+        print("Cell has died!")
 
     def become_alive(self):
         self.state = 1
+        print("Cell has come to life!")
 
     def count_nbs(self, generation):
-        # let col = (x + i + cols) % cols;
-        # let row = (y + j + rows) % rows;
-        # top_row = generation[(self.offset - (COLUMNS + 1)) % COLUMNS : (self.offset - (COLUMNS - 2)) % COLUMNS]
-        # same_row = [generation[(self.offset -1)  % COLUMNS], generation[(self.offset + 1) % COLUMNS]]
-        # bottom_row = generation[self.offset + (COLUMNS - 1) : self.offset + (COLUMNS + 2) % COLUMNS]
-        # for t in top_row + same_row + bottom_row:
-        #     print(t)
-        #     if t.state == 1:
-        #         self.nbs +=1
-        # if generation[self.offset + 1].state == 1:
-        #     print("YESH")
-        north = generation[get_offset(3,2)]
-        south = generation[(self.col + ROWS) % (ROWS * COLUMNS)]
-        # i + 1 - ((i mod 8) div 7) * 8
-        west = generation[(self.offset - 1 + (ROWS * COLUMNS)) % (ROWS * COLUMNS)]
-        east = generation[(self.offset + COLUMNS +1) % (ROWS * COLUMNS)]
-        print(north)
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                neighbour = generation[
+                    get_offset(
+                    (i+self.row + ROWS) % (ROWS),
+                    (j+self.col + COLUMNS) % (COLUMNS)
+                    )
+                    ]
+                if neighbour.offset == self.offset:
+                    continue
+
+                if neighbour.state == 1:
+                    self.nbs += 1
+
+
 
     def __str__(self):
         return "Cell, index=({}, {}), offset={}, state={}".format(self.row, self.col, self.offset, self.state)
@@ -63,6 +64,8 @@ def get_row(offset):
 def get_col(offset):
     return offset % COLUMNS
 
+
+
 first_generation = list(
     Cell(
         random.randint(0, 1),
@@ -70,24 +73,58 @@ first_generation = list(
         get_col(i)
     ) for i in range(ROWS * COLUMNS)
 )
-for i in first_generation:
-    print((i.row, i.col, i.state))
 
-c1 = first_generation[5]
-print("Selected cell: {}".format(c1))
-c1.count_nbs(first_generation)
+
+for c in first_generation:
+    c.count_nbs(first_generation)
+
+
+# def animate(self):
+#     self.draw_one_frame()
+#     self.after(100, self.animate)
+
+def move_to_next_generation(generation):
+# print("Neighbours: {}".format(c1.nbs))
+    draw(generation)
+    next_generation = list()
+    for c in generation:
+        new_cell = c
+        print(c)
+        if c.state == 1:
+            if c.nbs < 2 or c.nbs > 3:
+                new_cell.die()
+        else:
+            if c.nbs == 3:
+                new_cell.become_alive()
+        next_generation.append(new_cell)
+        print(new_cell)
+    # print("Selected cell: {}".format(c1))
+
+    draw(next_generation)
+    # move_to_next_generation(next_generation)
+    # return next_generation
+
+
+
+
+
+def draw(generation):
+    for i in generation:
+        x_0 = i.col  * RESOLUTION
+        y_0 = i.row  * RESOLUTION
+        x_1 = (i.col + 1)  * RESOLUTION
+        y_1 = (i.row + 1)  * RESOLUTION
+
+        color_fill = "grey" if i.state == 1 else "white"
+        canvas.create_rectangle(x_0, y_0, x_1, y_1, fill=color_fill, outline="")
 
 root = Tk()
 canvas = Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack()
-for i in first_generation:
-    x_0 = i.col  * RESOLUTION
-    y_0 = i.row  * RESOLUTION
-    x_1 = (i.col + 1)  * RESOLUTION
-    y_1 = (i.row + 1)  * RESOLUTION
+# move_to_next_generation(first_generation)
 
-
-    if i.state == 1:
-        canvas.create_rectangle(x_0, y_0, x_1, y_1, fill="grey")
-
+root.after(500, move_to_next_generation, first_generation)
 root.mainloop()
+
+# while True:
+#     move_to_next_generation(first_generation)
