@@ -14,7 +14,7 @@ def read_book():
 print(read_book())
 WIDTH = 500
 HEIGHT = 500
-RESOLUTION = 10
+RESOLUTION = 100
 ROWS = HEIGHT // RESOLUTION
 COLUMNS = WIDTH // RESOLUTION
 
@@ -29,11 +29,11 @@ class Cell(object):
 
     def die(self):
         self.state = 0
-        print("Cell has died!")
+        print("Cell at ({}, {}) has died!".format(self.row, self.col))
 
     def become_alive(self):
         self.state = 1
-        print("Cell has come to life!")
+        print("Cell at ({}, {}) has come to life!".format(self.row, self.col))
 
     def count_nbs(self, generation):
         for i in range(-1, 2):
@@ -85,11 +85,10 @@ for c in first_generation:
 
 def move_to_next_generation(generation):
 # print("Neighbours: {}".format(c1.nbs))
-    draw(generation)
+
     next_generation = list()
     for c in generation:
         new_cell = c
-        print(c)
         if c.state == 1:
             if c.nbs < 2 or c.nbs > 3:
                 new_cell.die()
@@ -97,16 +96,7 @@ def move_to_next_generation(generation):
             if c.nbs == 3:
                 new_cell.become_alive()
         next_generation.append(new_cell)
-        print(new_cell)
-    # print("Selected cell: {}".format(c1))
-
-    draw(next_generation)
-    # move_to_next_generation(next_generation)
-    # return next_generation
-
-
-
-
+    return next_generation
 
 def draw(generation):
     for i in generation:
@@ -117,13 +107,15 @@ def draw(generation):
 
         color_fill = "grey" if i.state == 1 else "white"
         canvas.create_rectangle(x_0, y_0, x_1, y_1, fill=color_fill, outline="")
+    generation_2 = move_to_next_generation(generation)
+    root.after(1, draw, generation_2)
 
 root = Tk()
 canvas = Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack()
-# move_to_next_generation(first_generation)
+draw(first_generation)
 
-root.after(500, move_to_next_generation, first_generation)
+
 root.mainloop()
 
 # while True:
