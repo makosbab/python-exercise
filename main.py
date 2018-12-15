@@ -14,7 +14,7 @@ def read_book():
 print(read_book())
 WIDTH = 500
 HEIGHT = 500
-RESOLUTION = 100
+RESOLUTION = 20
 ROWS = HEIGHT // RESOLUTION
 COLUMNS = WIDTH // RESOLUTION
 
@@ -29,11 +29,11 @@ class Cell(object):
 
     def die(self):
         self.state = 0
-        print("Cell at ({}, {}) has died!".format(self.row, self.col))
+        # print("Cell at ({}, {}) with {} neighbours has died!".format(self.row, self.col, self.nbs))
 
     def become_alive(self):
         self.state = 1
-        print("Cell at ({}, {}) has come to life!".format(self.row, self.col))
+        # print("Cell at ({}, {}) with {} neighbours has come to life!".format(self.row, self.col, self.nbs))
 
     def count_nbs(self, generation):
         for i in range(-1, 2):
@@ -75,31 +75,13 @@ first_generation = list(
 )
 
 
-for c in first_generation:
-    c.count_nbs(first_generation)
+# for c in first_generation:
+#     c.count_nbs(first_generation)
 
 
-# def animate(self):
-#     self.draw_one_frame()
-#     self.after(100, self.animate)
-
-def move_to_next_generation(generation):
-# print("Neighbours: {}".format(c1.nbs))
-
-    next_generation = list()
-    for c in generation:
-        new_cell = c
-        if c.state == 1:
-            if c.nbs < 2 or c.nbs > 3:
-                new_cell.die()
-        else:
-            if c.nbs == 3:
-                new_cell.become_alive()
-        next_generation.append(new_cell)
-    return next_generation
-
-def draw(generation):
-    for i in generation:
+def animate(old_generation):
+    
+    for i in old_generation:
         x_0 = i.col  * RESOLUTION
         y_0 = i.row  * RESOLUTION
         x_1 = (i.col + 1)  * RESOLUTION
@@ -107,15 +89,41 @@ def draw(generation):
 
         color_fill = "grey" if i.state == 1 else "white"
         canvas.create_rectangle(x_0, y_0, x_1, y_1, fill=color_fill, outline="")
-    generation_2 = move_to_next_generation(generation)
-    root.after(1, draw, generation_2)
+        # print(i)
+    # next_generation = move_to_next_generation(first_generation)
+        next_generation = list()
+
+    for old_cell in old_generation:
+        old_cell.count_nbs(old_generation)
+        new_cell = old_cell
+        if old_cell.state == 0 and old_cell.nbs == 3:
+            new_cell.become_alive()
+        elif old_cell.state == 1 and (old_cell.nbs < 2 or old_cell.nbs > 3):
+            new_cell.die()
+        else:
+            new_cell.state = old_cell.state
+        next_generation.append(new_cell)
+    root.after(2, animate, next_generation)
+
+def move_to_next_generation(old_generation):
+# print("Neighbours: {}".format(c1.nbs))
+    next_generation = list()
+    for old_cell in old_generation:
+        old_cell.count_nbs(old_generation)
+        new_cell = old_cell
+        if old_cell.state == 0 and old_cell.nbs == 3:
+            new_cell.become_alive()
+        elif old_cell.state == 1 and (old_cell.nbs < 2 or old_cell.nbs > 3):
+            new_cell.die()
+        else:
+            new_cell.state = old_cell.state
+        next_generation.append(new_cell)
+    return next_generation
 
 root = Tk()
 canvas = Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack()
-draw(first_generation)
-
-
+animate(first_generation)
 root.mainloop()
 
 # while True:
