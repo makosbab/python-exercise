@@ -22,8 +22,11 @@ class Cell(object):
         self.col = col
         self.offset = get_offset(row, col)
         self.nbs = 0
-        self.revealed = True
+        self.revealed = False
 
+    def contains(self, x, y):
+        return ((x > self.col * RESOLUTION and x < self.col * RESOLUTION + RESOLUTION) and 
+                (y > self.row * RESOLUTION and y < self.row * RESOLUTION + RESOLUTION))
 
     def die(self):
         self.state = 0
@@ -53,7 +56,8 @@ class Cell(object):
 
     def __str__(self):
         return "Cell, index=({}, {}), offset={}, state={}".format(self.row, self.col, self.offset, self.state)
-
+    def reveal(self):
+        self.revealed = True
     
 
 bees = list(
@@ -64,45 +68,45 @@ bees = list(
     ) for i in range(ROWS * COLUMNS)
 )
 
-
-
 def mouse_clicked(event):
-    print(event.x, event. y)
+    for b in bees:
+        if b.contains(event.x, event.y):
+            if not b.reveal():
+                b.reveal()
+            draw_cell(canvas, b)    
 
 
-root = Tk()
-canvas = Canvas(root, width=WIDTH, height=HEIGHT)
-canvas.bind("<Button-1>", mouse_clicked)
-canvas.pack()
-
-def reveal():
-    pass
 
 def draw_canvas(canvas):
-
-
-    for b in bees:
-        print((b.isBee, b.col, b.row))
-
-        x_0 = b.col  * RESOLUTION
-        y_0 = b.row  * RESOLUTION
-        x_1 = (b.col + 1)  * RESOLUTION
-        y_1 = (b.row + 1)  * RESOLUTION
-
-        if b.isBee:
-            offset = 8
-            canvas.create_rectangle(x_0, y_0, x_1, y_1, fill="grey", outline="")
-            canvas.create_oval(x_0 + offset, y_0 + offset, x_1 - offset, y_1 - offset,
-                fill="white",
-                outline="black")
-        else:
-            canvas.create_rectangle(x_0, y_0, x_1, y_1, fill="white", outline="")
-
  
     for row in range(ROWS + 1):  
         canvas.create_line(0, (row) * RESOLUTION, COLUMNS * RESOLUTION, (row) * RESOLUTION)
+
     for col in range(COLUMNS + 1):
         canvas.create_line((col) * RESOLUTION, 0, (col) * RESOLUTION, ROWS * RESOLUTION)
+
+    
+def draw_cell(canvas, b):
+    x_0 = b.col  * RESOLUTION
+    y_0 = b.row  * RESOLUTION
+    x_1 = (b.col + 1)  * RESOLUTION
+    y_1 = (b.row + 1)  * RESOLUTION
+    if b.isBee:
+        offset = 8
+        canvas.create_rectangle(x_0, y_0, x_1, y_1, fill="grey", outline="")
+        canvas.create_oval(x_0 + offset, y_0 + offset, x_1 - offset, y_1 - offset,
+            fill="white",
+            outline="black")
+    else:
+        canvas.create_rectangle(x_0 + 1, y_0 + 1, x_1, y_1, fill="grey", outline="")            
+
+root = Tk()
+canvas = Canvas(root, width=WIDTH, height=HEIGHT, bg="white")
+canvas.bind("<Button-1>", mouse_clicked)
+canvas.pack()
+
+
+
 draw_canvas(canvas)
 root.mainloop()
 
