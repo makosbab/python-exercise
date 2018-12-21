@@ -15,11 +15,11 @@ COLORS  =[
     'gray93', 'gray94', 'gray95', 'gray97', 'gray98', 'gray99']
 
 angle = 137.5
-c = 4
+c = 5
 n = 0
-CIRCLE_RADIUS = 2
-WIDTH = 400
-HEIGHT = 400
+DOT_RADIUS = 2
+WIDTH = 600
+HEIGHT = 600
 
 
 def animate(n):
@@ -30,10 +30,10 @@ def animate(n):
     x = r * math.cos(theta)
     y = r * math.sin(theta)
     color = "#000000"
-    canvas.create_oval(WIDTH/2 + x-CIRCLE_RADIUS, 
-            HEIGHT/2 + y-CIRCLE_RADIUS, 
-            WIDTH/2 + x+CIRCLE_RADIUS, 
-            HEIGHT/2 + y+CIRCLE_RADIUS,
+    canvas.create_oval(WIDTH/2 + x-DOT_RADIUS, 
+            HEIGHT/2 + y-DOT_RADIUS, 
+            WIDTH/2 + x+DOT_RADIUS, 
+            HEIGHT/2 + y+DOT_RADIUS,
             fill=COLORS[int(theta) % len(COLORS)],
             outline="")
     print((x ,y))
